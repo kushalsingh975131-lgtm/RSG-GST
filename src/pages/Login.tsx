@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
-// ===== CREATE PERMANENT USER (Comment out or remove after creating user) =====
-/*const PERMANENT_USER = {
-  phone: '8940202421',  // Change to your desired phone number
-  password: 'Rajshree77', // Change to your desired password
-  const { signIn, signUp, user, signOut } = useAuth();
-};*/
+// ===== PERMANENT USER (commented out) =====
+/*
+const PERMANENT_USER = {
+  phone: '8940202421',
+  password: 'Rajshree77',
+};
+*/
 // ===== END PERMANENT USER =====
 
 const Login = () => {
@@ -137,7 +138,8 @@ const Login = () => {
               className="mt-1 bg-background/50"
             />
           </div>
-          /*{/* ===== CREATE USER BUTTON (Comment out or remove after creating user) ===== */}
+          {/* Create user button - commented out after creation */}
+          {/*
           <button
             type="button"
             onClick={createPermanentUser}
@@ -146,7 +148,7 @@ const Login = () => {
           >
             {loading ? 'Creating User...' : 'Create Permanent User'}
           </button>
-          {/* ===== END CREATE USER BUTTON ===== */}*/
+          */}
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="submit"
