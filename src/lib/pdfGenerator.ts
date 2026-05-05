@@ -59,8 +59,8 @@ const numberToWords = (num: number): string => {
 
 const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyLabel: string) => {
   const pageWidth = doc.internal.pageSize.getWidth();
-  const leftMargin = 10;
-  const rightMargin = 10;
+  const leftMargin = 5;
+  const rightMargin = 5;
   const availableWidth = pageWidth - leftMargin - rightMargin;
   let y = startY;
 
@@ -82,9 +82,9 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(0, 102, 204); 
-  doc.text("RSG", leftMargin + 12, y + 10, { align: "center" });
+  doc.text("RSG", leftMargin + 10, y + 8, { align: "center" });
   doc.setTextColor(0);
-  doc.rect(leftMargin, y, 25, 22);
+  doc.rect(leftMargin, y, 20, 18);
 
   // Shop details
   doc.setFontSize(7);
@@ -179,28 +179,29 @@ const tableRows = data.items.map((item, i) => [
     ]],
     body: tableRows,
     styles: {
-      fontSize: 6.5,
-      cellPadding: 0.8,
+      fontSize: 5.5,
+      cellPadding: 0.6,
       lineWidth: 0.1,
       textColor: 0,
       lineColor: 0,
     },
     headStyles: {
+      fontSize: 5.5,
       fillColor: [220, 230, 241],
       textColor: 0,
       fontStyle: 'bold',
       halign: 'center',
     },
     columnStyles: {
-      0: { cellWidth: 8, halign: 'center' },
-      1: { cellWidth: 55 },
-      2: { cellWidth: 16, halign: 'center' },
-      3: { cellWidth: 12, halign: 'center' },
-      4: { cellWidth: 18, halign: 'right' },
-      5: { cellWidth: 20, halign: 'right' },
-      6: { cellWidth: 12, halign: 'center' },
-      7: { cellWidth: 18, halign: 'right' },
-      8: { cellWidth: 22, halign: 'right' },
+      0: { cellWidth: 6, halign: 'center' },
+      1: { cellWidth: 40 },
+      2: { cellWidth: 12, halign: 'center' },
+      3: { cellWidth: 10, halign: 'center' },
+      4: { cellWidth: 14, halign: 'right' },
+      5: { cellWidth: 18, halign: 'right' },
+      6: { cellWidth: 8, halign: 'center' },
+      7: { cellWidth: 14, halign: 'right' },
+      8: { cellWidth: 16, halign: 'right' },
     },
   });
 
@@ -287,4 +288,5 @@ export const generateBillPDF = (data: GSTBillData): jsPDF => {
   generateSingleCopy(doc, data, 5, "Original /DuplicateBill");
 
   return doc;
+  //dupli
 };
