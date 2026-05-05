@@ -274,7 +274,7 @@ const ViewBillsTab = () => {
       try {
         const today = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
         const cleanName = customerName.replace(/\s+/g, "_");
-        const file = new File([blob], `RSG_${cleanName}_${today}.pdf`, { type: 'application/pdf' });
+        const file = new File([blob], `RSG GST_${cleanName}_${today}.pdf`, { type: 'application/pdf' });
         await navigator.share({ files: [file] });
       } catch {
         // fallback
@@ -285,7 +285,7 @@ const ViewBillsTab = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-8 text-muted-foreground">RSG...</div>;
+  if (loading) return <div className="text-center py-8 text-muted-foreground">RSG GST...</div>;
 
   if (selectedBill) {
     return (

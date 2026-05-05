@@ -223,7 +223,7 @@ const Index = () => {
       try {
         const today = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
         const cleanName = customerName.replace(/\s+/g, "_");
-        const file = new File([blob], `RSG_${cleanName}_${today}.pdf`, { type: 'application/pdf' });
+        const file = new File([blob], `RSG GST_${cleanName}_${today}.pdf`, { type: 'application/pdf' });
         await navigator.share({ files: [file] });
       } catch {
         // fallback
