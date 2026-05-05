@@ -82,7 +82,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
   doc.text("RSG", leftMargin + 12, y + 10, { align: "center" });
-  doc.rect(leftMargin, y, 25, 20);
+  doc.rect(leftMargin, y, 25, 22);
 
   // Shop details
   doc.setFontSize(7);
@@ -110,7 +110,8 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.text("Bill To", leftMargin + 2, y + 5);
   doc.setFont("helvetica", "normal");
   doc.text(`Name   : ${data.customer_name || '-'}`, leftMargin + 2, y + 10);
-  doc.text(`Address: ${data.customer_address || '-'}`, leftMargin + 2, y + 15);
+  const addressLines = doc.splitTextToSize(`Address: ${data.customer_address || '-'}`, colMid - leftMargin - 4);
+  doc.text(addressLines, leftMargin + 2, y + 15);
   doc.text(`State  : ${data.customer_state || '-'}`, leftMargin + 2, y + 20);
   doc.text(`GSTIN  : ${data.customer_gstin || '-'}`, leftMargin + 2, y + 25);
 
@@ -281,10 +282,7 @@ export const generateBillPDF = (data: GSTBillData): jsPDF => {
   });
 
   // Original copy (top half)
-  generateSingleCopy(doc, data, 5, "Original Bill");
-
-  // Duplicate copy (bottom half)
-  generateSingleCopy(doc, data, 150, "Duplicate Bill");
+  generateSingleCopy(doc, data, 5, "Original /DuplicateBill");
 
   return doc;
 };
