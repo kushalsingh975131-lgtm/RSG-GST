@@ -140,7 +140,7 @@ const tableRows = data.items.map((item, i) => [
   Number(item.qty),
   formatINR(Number(item.rate)),
   formatINR(item.taxable_value),
-  '9%',
+  '18%',
   formatINR(item.cgst_amount),
   formatINR(item.amount),
 ]);
