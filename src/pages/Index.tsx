@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import { generateBillPDF } from '@/lib/pdfGenerator';
 import { useAuth } from '@/hooks/useAuth';
 
+
 const createEmptyItem = (): GSTBillItem => ({
   id: crypto.randomUUID(),
   particulars: '',
@@ -39,6 +40,22 @@ const Index = () => {
   const [keypadEnabled, setKeypadEnabled] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const fetchGSTINDetails = async (gstin: string) => {
+  if (gstin.length !== 15) return;
+  try {
+    const res = await fetch(`https://api.gstincheck.co.in/check/${import.meta.env.VITE_GSTIN_API_KEY}/${gstin}`);
+    const data = await res.json();
+    if (data.flag) {
+      setCustomerName(data.data.tradeNam || data.data.lgnm || '');
+      setCustomerAddress(data.data.pradr?.adr || '');
+      setCustomerState(data.data.pradr?.addr?.stcd || '');
+      setPlaceOfSupply(data.data.pradr?.addr?.stcd || '');
+    }
+  } catch {
+    // silently fail
+  }
+};
 
   useEffect(() => {
     const check = () => {
@@ -131,8 +148,7 @@ const Index = () => {
     setSaving(true);
     try {
       // Get next invoice number
-      const { data: invoiceNo, error: invoiceErr } = await supabase
-        .rpc('get_next_invoice_no');
+      const { data: invoiceNo, error: invoiceErr } = await (supabase as any).rpc('get_next_invoice_no');
       if (invoiceErr) throw invoiceErr;
 
       const { data: bill, error: billErr } = await supabase
@@ -278,8 +294,17 @@ const Index = () => {
             </div>
             <div className="flex-1 min-w-[160px]">
               <Label className="text-xs text-muted-foreground">Customer GSTIN</Label>
-              <Input value={customerGstin} onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-                placeholder="GSTIN" className="mt-1 bg-background/50" />
+               <Input
+                        value={customerGstin}
+                        onChange={e => {
+                        const val = e.target.value.toUpperCase();
+                        setCustomerGstin(val);
+                        fetchGSTINDetails(val);
+                       }}
+                        placeholder="GSTIN"
+                        className="mt-1 bg-background/50"
+                        maxLength={15}
+                 />
             </div>
             <div className="flex-1 min-w-[160px]">
               <Label className="text-xs text-muted-foreground">Address</Label>

@@ -48,7 +48,6 @@ const BillTable = ({
   const inputRefs = useRef<Map<string, HTMLInputElement>>(new Map());
   const prevRowRef = useRef<number | null>(null);
   const [hsnCodes, setHsnCodes] = useState<HSNCode[]>([]);
-  const [hsnDropdownRow, setHsnDropdownRow] = useState<number | null>(null);
 
   const isMobileRaw = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
   const mobileWithKeypad = isMobileRaw && keypadEnabled !== false;
@@ -166,31 +165,20 @@ const BillTable = ({
                     placeholder="Item description"
                   />
                 </td>
-                <td className="relative">
-                  {/* HSN Dropdown */}
-                  <div
-                    className="w-full text-center cursor-pointer border border-border/40 rounded px-1 py-1 text-sm hover:border-primary/50 transition-colors"
-                    onClick={() => setHsnDropdownRow(hsnDropdownRow === i ? null : i)}
-                  >
-                    {item.hsn || 'Select'}
-                  </div>
-                  {hsnDropdownRow === i && (
-                    <div className="absolute z-50 top-full left-0 bg-background border border-border rounded-lg shadow-lg min-w-[200px] mt-1">
-                      {hsnCodes.map(h => (
-                        <button
-                          key={h.code}
-                          className="w-full text-left px-3 py-2 text-xs hover:bg-primary/10 transition-colors"
-                          onClick={() => {
-                            updateItem(i, 'hsn', h.code);
-                            setHsnDropdownRow(null);
-                          }}
-                        >
-                          <span className="font-bold">{h.code}</span> — {h.description}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </td>
+                <td>
+                 <select
+                  value={item.hsn}
+                  onChange={e => updateItem(i, 'hsn', e.target.value)}
+                  className="w-full text-center text-sm bg-background border border-border/40 rounded px-1 py-1 hover:border-primary/50 transition-colors"
+  >
+                 <option value="">Select HSN</option>
+                    {hsnCodes.map(h => (
+                    <option key={h.code} value={h.code}>
+                     {h.code} — {h.description}
+                     </option>
+                     ))}
+                    </select>
+               </td>
                 <td>
                   <input
                     ref={setRef(`${i}-rate`)}
