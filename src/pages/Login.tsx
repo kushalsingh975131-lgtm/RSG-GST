@@ -110,7 +110,7 @@ const Login = () => {
             <ShoppingBag className="mx-auto text-primary" size={44} />
           </motion.div>
           <h1 className="font-serif text-2xl font-bold gold-text">ALogin</h1>
-          <p className="text-sm text-muted-foreground">Raj Shree Gifts Billing System</p>
+          <p className="text-sm text-muted-foreground">RSG GST</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

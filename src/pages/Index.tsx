@@ -245,7 +245,7 @@ const Index = () => {
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-2">
             <ShoppingBag className="text-primary" size={22} />
-            <h1 className="text-lg font-serif font-bold gold-text">Raj Shree Gifts</h1>
+            <h1 className="text-lg font-serif font-bold gold-text">RSG GST</h1>
           </div>
           <div className="flex items-center gap-2">
             {isAdmin && (
