@@ -179,7 +179,7 @@ const ViewBillsTab = () => {
     const sgst = items.reduce((s, i) => s + i.sgst_amount, 0);
     const grand_total = items.reduce((s, i) => s + i.amount, 0);
 
-    await supabase.from('gst_bills').update({
+    await (supabase as any).from('gst_bills').update({
       customer_name: customerName,
       customer_gstin: customerGstin,
       customer_address: customerAddress,
@@ -192,8 +192,8 @@ const ViewBillsTab = () => {
       grand_total,
     }).eq('id', selectedBill.id);
 
-    await supabase.from('gst_bill_items').delete().eq('bill_id', selectedBill.id);
-    await supabase.from('gst_bill_items').insert(
+    await (supabase as any).from('gst_bill_items').delete().eq('bill_id', selectedBill.id);
+    await (supabase as any).from('gst_bill_items').insert(
       items.filter(i => i.amount > 0).map(i => ({
         bill_id: selectedBill.id,
         particulars: i.particulars,
@@ -212,7 +212,7 @@ const ViewBillsTab = () => {
   };
 
   const deleteBill = async (id: string) => {
-    await supabase.from('gst_bills').delete().eq('id', id);
+    await (supabase as any).from('gst_bills').delete().eq('id', id);
     toast({ title: 'Bill deleted' });
     setSelectedBill(null);
     fetchBills();

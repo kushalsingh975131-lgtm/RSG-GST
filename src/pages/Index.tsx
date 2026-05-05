@@ -184,7 +184,7 @@ const Index = () => {
         amount: i.amount,
       }));
 
-      const { error: itemsErr } = await supabase.from('gst_bill_items').insert(billItems);
+      const { error: itemsErr } = await (supabase as any).from('gst_bill_items').insert(billItems);
       if (itemsErr) throw itemsErr;
 
       toast({ title: `Bill ${invoiceNo} saved! ✨` });
