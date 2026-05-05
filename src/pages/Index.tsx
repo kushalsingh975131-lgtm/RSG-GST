@@ -52,7 +52,8 @@ const Index = () => {
       setCustomerState(data.data.pradr?.addr?.stcd || '');
       setPlaceOfSupply(data.data.pradr?.addr?.stcd || '');
     }
-  } catch {
+  } catch (e) {
+    console.log('GSTIN fetch failed', e);
     // silently fail
   }
 };
@@ -149,7 +150,7 @@ const Index = () => {
     try {
       // Get next invoice number
       const { data: invoiceNo, error: invoiceErr } = await (supabase as any).rpc('get_next_invoice_no');
-      if (invoiceErr) throw invoiceErr;
+    if (invoiceErr) throw invoiceErr;
 
       const { data: bill, error: billErr } = await supabase
         .from('gst_bills')

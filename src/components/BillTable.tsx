@@ -54,10 +54,12 @@ const BillTable = ({
 
   // Fetch HSN codes from Supabase
   useEffect(() => {
-    supabase.from('hsn_codes').select('code, description').then(({ data }) => {
-      if (data) setHsnCodes(data);
-    });
-  }, []);
+  (supabase as any).from('hsn_codes').select('code, description').then(({ data, error }: any) => {
+    console.log('HSN data:', data);
+    console.log('HSN error:', error);
+    if (data) setHsnCodes(data);
+  });
+}, []);
 
   const setRef = useCallback((key: string) => (el: HTMLInputElement | null) => {
     if (el) inputRefs.current.set(key, el);
