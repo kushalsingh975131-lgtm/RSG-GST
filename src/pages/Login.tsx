@@ -8,14 +8,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
 // ===== CREATE PERMANENT USER (Comment out or remove after creating user) =====
-const PERMANENT_USER = {
+/*const PERMANENT_USER = {
   phone: '8940202421',  // Change to your desired phone number
   password: 'Rajshree77', // Change to your desired password
-};
+  const { signIn, signUp, user, signOut } = useAuth();
+};*/
 // ===== END PERMANENT USER =====
 
 const Login = () => {
-  const { signIn, signUp, user, signOut } = useAuth();
+  const { signIn, user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [phone, setPhone] = useState('');
@@ -23,7 +24,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   // ===== CREATE PERMANENT USER FUNCTION (Comment out or remove after creating user) =====
-  const createPermanentUser = async () => {
+  /*const createPermanentUser = async () => {
     setLoading(true);
     const { error } = await signUp(PERMANENT_USER.phone, PERMANENT_USER.password);
     setLoading(false);
@@ -41,7 +42,7 @@ const Login = () => {
       setPhone(PERMANENT_USER.phone);
       setPassword(PERMANENT_USER.password);
     }
-  };
+  };*/
   // ===== END CREATE USER FUNCTION =====
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -136,7 +137,7 @@ const Login = () => {
               className="mt-1 bg-background/50"
             />
           </div>
-          {/* ===== CREATE USER BUTTON (Comment out or remove after creating user) ===== */}
+          /*{/* ===== CREATE USER BUTTON (Comment out or remove after creating user) ===== */}
           <button
             type="button"
             onClick={createPermanentUser}
@@ -145,7 +146,7 @@ const Login = () => {
           >
             {loading ? 'Creating User...' : 'Create Permanent User'}
           </button>
-          {/* ===== END CREATE USER BUTTON ===== */}
+          {/* ===== END CREATE USER BUTTON ===== */}*/
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="submit"
