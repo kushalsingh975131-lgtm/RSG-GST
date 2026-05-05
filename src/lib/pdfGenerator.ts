@@ -79,9 +79,11 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   // ── HEADER ──
   doc.setLineWidth(0.1);
   // RSG box (logo area)
-  doc.setFontSize(16);
+  doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 102, 204); 
   doc.text("RSG", leftMargin + 12, y + 10, { align: "center" });
+  doc.setTextColor(0);
   doc.rect(leftMargin, y, 25, 22);
 
   // Shop details
@@ -278,7 +280,7 @@ export const generateBillPDF = (data: GSTBillData): jsPDF => {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: "a4",
+    format: "a5",
   });
 
   // Original copy (top half)
