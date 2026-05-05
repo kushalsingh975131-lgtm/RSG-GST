@@ -1,0 +1,15 @@
+export default function CreateUserButton() {
+  const { signUp } = useAuth();
+
+  const handleCreateUser = async () => {
+    const { error } = await signUp('+918940202421', 'Lalith455');
+    if (error) {
+      alert('Error: ' + error.message);
+    } else {
+      alert('User created successfully!');
+    }
+  };
+
+  return <button onClick={handleCreateUser}>Create Static User</button>;
+}
+
