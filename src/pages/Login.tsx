@@ -7,15 +7,42 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
-
+// ===== CREATE PERMANENT USER (Comment out or remove after creating user) =====
+const PERMANENT_USER = {
+  phone: '8940202421',  // Change to your desired phone number
+  password: 'Rajshree77', // Change to your desired password
+};
+// ===== END PERMANENT USER =====
 
 const Login = () => {
-  const { signIn, user, signOut } = useAuth();
+  const { signIn, signUp, user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // ===== CREATE PERMANENT USER FUNCTION (Comment out or remove after creating user) =====
+  const createPermanentUser = async () => {
+    setLoading(true);
+    const { error } = await signUp(PERMANENT_USER.phone, PERMANENT_USER.password);
+    setLoading(false);
+    if (error) {
+      toast({ 
+        title: 'User creation failed', 
+        description: error.message, 
+        variant: 'destructive' 
+      });
+    } else {
+      toast({ 
+        title: 'User created successfully! ✨', 
+        description: `Phone: +91${PERMANENT_USER.phone}` 
+      });
+      setPhone(PERMANENT_USER.phone);
+      setPassword(PERMANENT_USER.password);
+    }
+  };
+  // ===== END CREATE USER FUNCTION =====
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +136,16 @@ const Login = () => {
               className="mt-1 bg-background/50"
             />
           </div>
+          {/* ===== CREATE USER BUTTON (Comment out or remove after creating user) ===== */}
+          <button
+            type="button"
+            onClick={createPermanentUser}
+            disabled={loading}
+            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Creating User...' : 'Create Permanent User'}
+          </button>
+          {/* ===== END CREATE USER BUTTON ===== */}
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="submit"
