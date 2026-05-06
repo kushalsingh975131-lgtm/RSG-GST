@@ -208,12 +208,12 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     },
     columnStyles: {
       0:  { cellWidth: 5,  halign: 'center' },
-      1:  { cellWidth: 32 },
-      2:  { cellWidth: 12, halign: 'center' },
-      3:  { cellWidth: 10,  halign: 'center' },
-      4:  { cellWidth: 14, halign: 'right' },
-      5:  { cellWidth: 18, halign: 'right' },
-      6:  { cellWidth: 8,  halign: 'center' },
+      1:  { cellWidth: 42 },
+      2:  { cellWidth: 14, halign: 'center' },
+      3:  { cellWidth: 12,  halign: 'center' },
+      4:  { cellWidth: 15, halign: 'right' },
+      5:  { cellWidth: 19, halign: 'right' },
+      6:  { cellWidth: 9,  halign: 'center' },
       7:  { cellWidth: 16, halign: 'right' },
       8:  { cellWidth: 12,  halign: 'center' },
     },
@@ -233,39 +233,56 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   // Bank details
   doc.setFontSize(6.5);
   doc.setFont("helvetica", "bold");
-  doc.text("Our Bank Details", leftMargin + 2, fy + 5);
+  doc.text("Bank Details", leftMargin + 2, fy + 5);
   doc.setFont("helvetica", "normal");
   doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 10);
-  doc.text("Branch     : MADURAI MAIN", leftMargin + 2, fy + 15);
+  doc.text("Branch       : MADURAI MAIN", leftMargin + 2, fy + 15);
   doc.text("Account No : 50200074442432", leftMargin + 2, fy + 20);
   doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 25);
 
-  // Summary right
-  const summaryX = colMid + 2;
-  // Summary header
-  doc.setFillColor(220, 230, 241);
-  doc.rect(colMid, fy, availableWidth / 2, 6, 'F');
-  doc.setFont("helvetica", "bold");
-  doc.text("SUMMARY", colMid + 20, fy + 4, { align: "center" });
-  doc.text("AMOUNT", valueX, fy + 4, { align: "right" });
+ // Summary right - as table
+  autoTable(doc, {
+    startY: fy,
+    margin: { left: colMid, right: rightMargin },
+    tableWidth: availableWidth / 2,
+    theme: 'grid',
+    head: [[
+      { content: 'SUMMARY', styles: { halign: 'left' } },
+      { content: 'AMOUNT', styles: { halign: 'right' } },
+    ]],
+    body: [
+      ['CGST Amt :', { content: data.is_igst ? '-' : formatINR(data.cgst), styles: { halign: 'right' } }],
+      ['SGST Amt :', { content: data.is_igst ? '-' : formatINR(data.sgst), styles: { halign: 'right' } }],
+      ['IGST Amt :', { content: data.is_igst ? formatINR(data.cgst + data.sgst) : '-', styles: { halign: 'right' } }],
+      ['Freight/Packing :', { content: freight > 0 ? formatINR(freight) : '-', styles: { halign: 'right' } }],
+      ['Round Off :', { content: roundOff !== 0 ? formatINR(Math.abs(roundOff)) : '0.00', styles: { halign: 'right' } }],
+    ],
+    styles: {
+      fontSize: 6,
+      cellPadding: 0.8,
+      lineWidth: 0.1,
+      textColor: 0,
+      lineColor: 0,
+    },
+    headStyles: {
+      fillColor: [220, 230, 241],
+      textColor: 0,
+      fontStyle: 'bold',
+    },
+    columnStyles: {
+      0: { cellWidth: 'auto' },
+      1: { cellWidth: 22, halign: 'right' },
+    },
+  });
 
-  doc.setFont("helvetica", "normal");
-  doc.text("CGST Amt :", summaryX, fy + 11);
-  doc.text(data.is_igst ? "-" : formatINR(data.cgst), valueX, fy + 11, { align: "right" });
-  doc.text("SGST Amt :", summaryX, fy + 17);
-  doc.text(data.is_igst ? "-" : formatINR(data.sgst), valueX, fy + 17, { align: "right" });
-  doc.text("IGST Amt :", summaryX, fy + 23);
-  doc.text(data.is_igst ? formatINR(data.cgst + data.sgst) : "-", valueX, fy + 23, { align: "right" });
-  doc.text("Freight/Packing :", summaryX, fy + 29);
-  doc.text(freight > 0 ? formatINR(freight) : "-", valueX, fy + 29, { align: "right" });
-  doc.text("Round off :", summaryX, fy + 35);
-  doc.text(formatINR(roundedTotal), valueX, fy + 35, { align: "right" });
+  const summaryFinalY = (doc as any).lastAutoTable.finalY;
 
-  fy += 38;
+  // Bank details box to match summary height
+  doc.rect(leftMargin, fy, availableWidth / 2, summaryFinalY - fy);
 
+  fy = summaryFinalY;
   // Total in words + Total amount
-  doc.rect(leftMargin, fy, availableWidth, 14);
-  doc.line(colMid, fy, colMid, fy + 14);
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
   doc.text("Total Amount in Words", leftMargin + 2, fy + 5);
@@ -275,7 +292,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.text(wordLines, leftMargin + 2, fy + 10);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
-  doc.text("Total Amount :", summaryX, fy + 5);
+  doc.text("Total Amount :", colMid + 2, fy + 5);
   doc.text(formatINR(Math.round(data.grand_total)), valueX, fy + 5, { align: "right" });
   fy += 14;
 

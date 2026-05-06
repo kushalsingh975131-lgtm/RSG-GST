@@ -35,13 +35,13 @@ const Index = () => {
   const [customerState, setCustomerState] = useState('');
   const [placeOfSupply, setPlaceOfSupply] = useState('');
   const [paymentMode, setPaymentMode] = useState('CASH');
+  const [isIGST, setIsIGST] = useState(false);
+  const [freightCharge, setFreightCharge] = useState('');
   const [activeField, setActiveField] = useState<{ row: number; field: 'rate' | 'qty' | 'particulars' | 'hsn' } | null>({ row: 0, field: 'particulars' });
   const [saving, setSaving] = useState(false);
   const [keypadEnabled, setKeypadEnabled] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isIGST, setIsIGST] = useState(false);
-  const [freightCharge, setFreightCharge] = useState('');
 
   const fetchGSTINDetails = async (gstin: string) => {
   if (gstin.length !== 15) return;

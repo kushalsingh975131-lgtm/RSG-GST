@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import BillTable, { type GSTBillItem } from '@/components/BillTable';
 import NumericKeypad from '@/components/NumericKeypad';
 import { generateBillPDF } from '@/lib/pdfGenerator';
+import { Switch } from '@/components/ui/switch';
 
 interface GSTBill {
   id: string;
@@ -24,6 +25,8 @@ interface GSTBill {
   sgst: number;
   grand_total: number;
   created_at: string;
+  is_igst: boolean;        // ✅ add
+  freight_charge: number;
 }
 
 const ViewBillsTab = () => {
@@ -42,6 +45,8 @@ const ViewBillsTab = () => {
   const [keypadEnabled, setKeypadEnabled] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isIGST, setIsIGST] = useState(false);
+  const [freightCharge, setFreightCharge] = useState('');
 
   useEffect(() => {
     const check = () => {
@@ -151,6 +156,8 @@ const ViewBillsTab = () => {
     setCustomerState(bill.customer_state || '');
     setPlaceOfSupply(bill.place_of_supply || '');
     setPaymentMode(bill.payment_mode || 'CASH');
+    setIsIGST(bill.is_igst || false);
+    setFreightCharge(bill.freight_charge ? String(bill.freight_charge) : '');
 
     const { data } = await supabase
       .from('gst_bill_items')
@@ -186,6 +193,8 @@ const ViewBillsTab = () => {
       customer_state: customerState,
       place_of_supply: placeOfSupply,
       payment_mode: paymentMode,
+      is_igst: isIGST,                           // ✅ add
+      freight_charge: parseFloat(freightCharge) || 0,
       taxable_amount,
       cgst,
       sgst,
@@ -233,6 +242,8 @@ const ViewBillsTab = () => {
       customer_state: customerState,
       place_of_supply: placeOfSupply,
       payment_mode: paymentMode,
+      is_igst: isIGST,                               // ✅ add this
+      freight_charge: parseFloat(freightCharge) || 0,
       items: items.filter(i => i.amount > 0),
       taxable_amount,
       cgst,
@@ -258,6 +269,8 @@ const ViewBillsTab = () => {
       customer_state: customerState,
       place_of_supply: placeOfSupply,
       payment_mode: paymentMode,
+      is_igst: isIGST,                               // ✅ add this
+      freight_charge: parseFloat(freightCharge) || 0,
       items: items.filter(i => i.amount > 0),
       taxable_amount,
       cgst,
@@ -323,6 +336,21 @@ const ViewBillsTab = () => {
               </select>
             </div>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+            <Switch checked={isIGST} onCheckedChange={setIsIGST} />
+            <Label className="text-sm">IGST</Label>
+        </div>
+
+        <div className="w-28">
+            <Label className="text-xs text-muted-foreground">Freight/Packing ₹</Label>
+            <Input
+              value={freightCharge}
+              onChange={e => setFreightCharge(e.target.value)}
+              placeholder="0"
+              inputMode="numeric"
+              className="mt-1 bg-background/50"
+            />
         </div>
 
         <div className="glass-card p-3 pb-60">
