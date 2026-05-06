@@ -355,7 +355,7 @@ const fetchGSTINDetails = async (gstin: string) => {
               <Label className="text-sm">Keypad</Label>
             </div>
           </div>
-
+          <div className="flex gap-3 flex-wrap">
           <div className="flex-1 min-w-[160px]">
             <Label className="text-xs text-muted-foreground">
               Customer Name {customerName && gstinLoading === false && customerGstin.length === 15 && !gstinError ? '(autofilled)' : ''}
