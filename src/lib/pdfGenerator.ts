@@ -212,7 +212,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
       2:  { cellWidth: 14, halign: 'center' },
       3:  { cellWidth: 12,  halign: 'center' },
       4:  { cellWidth: 15, halign: 'right' },
-      5:  { cellWidth: 19, halign: 'right' },
+      5:  { cellWidth: 17, halign: 'right' },
       6:  { cellWidth: 9,  halign: 'center' },
       7:  { cellWidth: 16, halign: 'right' },
       8:  { cellWidth: 12,  halign: 'center' },
@@ -235,10 +235,10 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.setFont("helvetica", "bold");
   doc.text("Bank Details", leftMargin + 2, fy + 5);
   doc.setFont("helvetica", "normal");
-  doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 9);
-  doc.text("Branch         : MADURAI MAIN", leftMargin + 2, fy + 14);
-  doc.text("Account No : 50200074442432", leftMargin + 2, fy + 19);
-  doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 24);
+  doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 8);
+  doc.text("Branch         : MADURAI MAIN", leftMargin + 2, fy + 13);
+  doc.text("Account No : 50200074442432", leftMargin + 2, fy + 18);
+  doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 23);
 
  // Summary right - as table
   autoTable(doc, {
