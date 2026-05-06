@@ -139,7 +139,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.text("Payment Mode   :", labelX, y + 18);
   doc.text("Place of Supply:", labelX, y + 24);
   doc.setFont("helvetica", "normal");
-  doc.text(data.invoice_no, valueX, y + 6, { align: "right" });
+  doc.text(data.invoice_no.replace('RSG ', ''), valueX, y + 6, { align: "right" });
   doc.text(formatDate(data.invoice_date), valueX, y + 12, { align: "right" });
   doc.text(data.payment_mode, valueX, y + 18, { align: "right" });
   doc.text(data.place_of_supply || '-', valueX, y + 24, { align: "right" });
@@ -208,7 +208,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     },
     columnStyles: {
       0:  { cellWidth: 5,  halign: 'center' },
-      1:  { cellWidth: 42 },
+      1:  { cellWidth: 38 },
       2:  { cellWidth: 14, halign: 'center' },
       3:  { cellWidth: 12,  halign: 'center' },
       4:  { cellWidth: 15, halign: 'right' },
@@ -235,10 +235,10 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.setFont("helvetica", "bold");
   doc.text("Bank Details", leftMargin + 2, fy + 5);
   doc.setFont("helvetica", "normal");
-  doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 10);
-  doc.text("Branch       : MADURAI MAIN", leftMargin + 2, fy + 15);
-  doc.text("Account No : 50200074442432", leftMargin + 2, fy + 20);
-  doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 25);
+  doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 9);
+  doc.text("Branch         : MADURAI MAIN", leftMargin + 2, fy + 14);
+  doc.text("Account No : 50200074442432", leftMargin + 2, fy + 19);
+  doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 24);
 
  // Summary right - as table
   autoTable(doc, {
@@ -250,13 +250,28 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
       { content: 'SUMMARY', styles: { halign: 'left' } },
       { content: 'AMOUNT', styles: { halign: 'right' } },
     ]],
-    body: [
-      ['CGST Amt :', { content: data.is_igst ? '-' : formatINR(data.cgst), styles: { halign: 'right' } }],
-      ['SGST Amt :', { content: data.is_igst ? '-' : formatINR(data.sgst), styles: { halign: 'right' } }],
-      ['IGST Amt :', { content: data.is_igst ? formatINR(data.cgst + data.sgst) : '-', styles: { halign: 'right' } }],
-      ['Freight/Packing :', { content: freight > 0 ? formatINR(freight) : '-', styles: { halign: 'right' } }],
-      ['Round Off :', { content: roundOff !== 0 ? formatINR(Math.abs(roundOff)) : '0.00', styles: { halign: 'right' } }],
-    ],
+  body: [
+  [
+    { content: `CGST ${data.is_igst ? '-' : '9%'}`, styles: { halign: 'left' } },
+    { content: data.is_igst ? '-' : formatINR(data.cgst), styles: { halign: 'right' } }
+  ],
+  [
+    { content: `SGST ${data.is_igst ? '-' : '9%'}`, styles: { halign: 'left' } },
+    { content: data.is_igst ? '-' : formatINR(data.sgst), styles: { halign: 'right' } }
+  ],
+  [
+    { content: `IGST ${data.is_igst ? '18%' : '-'}`, styles: { halign: 'left' } },
+    { content: data.is_igst ? formatINR(data.cgst + data.sgst) : '-', styles: { halign: 'right' } }
+  ],
+  [
+    { content: 'Freight/Packing', styles: { halign: 'left' } },
+    { content: freight > 0 ? formatINR(freight) : '-', styles: { halign: 'right' } }
+  ],
+  [
+    { content: 'Round Off', styles: { halign: 'left' } },
+    { content: roundOff !== 0 ? formatINR(Math.abs(roundOff)) : '0.00', styles: { halign: 'right' } }
+  ],
+],
     styles: {
       fontSize: 6,
       cellPadding: 0.8,
