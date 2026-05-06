@@ -343,7 +343,218 @@ export const generateBillPDF = (data: GSTBillData): jsPDF => {
     format: "a5",
   });
 
-  generateSingleCopy(doc, data, 5, "Original / Duplicate Bill");
+  const FIRST_PAGE_MAX = 20;
+  const OTHER_PAGE_MAX = 35;
+
+  // If 20 or less — single page as before
+  if (data.items.length <= FIRST_PAGE_MAX) {
+    generateSingleCopy(doc, data, 5, "Original / Duplicate Bill");
+    return doc;
+  }
+
+  // More than 20 — split into pages
+  const pages: GSTBillItem[][] = [];
+  pages.push(data.items.slice(0, FIRST_PAGE_MAX));
+  let remaining = data.items.slice(FIRST_PAGE_MAX);
+  while (remaining.length > 0) {
+    pages.push(remaining.slice(0, OTHER_PAGE_MAX));
+    remaining = remaining.slice(OTHER_PAGE_MAX);
+  }
+
+  const freight = data.freight_charge || 0;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const leftMargin = 5;
+  const rightMargin = 5;
+  const availableWidth = pageWidth - leftMargin - rightMargin;
+  const colMid = leftMargin + availableWidth / 2;
+  const valueX = pageWidth - rightMargin - 2;
+
+  pages.forEach((pageItems, pageIndex) => {
+    if (pageIndex > 0) doc.addPage();
+
+    const isFirstPage = pageIndex === 0;
+    const isLastPage = pageIndex === pages.length - 1;
+
+    // First page — use your existing generateSingleCopy but with pageItems only
+    if (isFirstPage) {
+      // Draw header + bill to + invoice details (reuse your existing code)
+      generateSingleCopy(doc, { ...data, items: pageItems }, 5, `Original / Duplicate Bill — Page 1 of ${pages.length}`);
+      return;
+    }
+
+    // Pages 2+ — simple table only, no header
+    let y = 5;
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Continued — Page ${pageIndex + 1} of ${pages.length}`, pageWidth / 2, y, { align: "center" });
+    doc.text(data.invoice_no.replace('RSG ', ''), pageWidth - rightMargin, y, { align: "right" });
+    y += 5;
+
+    // Serial numbers continue from previous page
+    const startSerial = FIRST_PAGE_MAX + (pageIndex - 1) * OTHER_PAGE_MAX + 1;
+
+    const tableRows: any[] = pageItems.map((item, i) => [
+      startSerial + i,
+      item.particulars,
+      item.hsn,
+      Number(item.qty),
+      formatINR(Number(item.rate)),
+      formatINR(item.taxable_value),
+      '18%',
+      formatINR(item.cgst_amount + item.sgst_amount),
+      formatINR(item.amount),
+    ]);
+
+    // Last page — show grand total, others show page subtotal
+    const pageSubtotal = pageItems.reduce((s, i) => s + i.taxable_value, 0);
+    const pageGSTAmt = pageItems.reduce((s, i) => s + i.cgst_amount + i.sgst_amount, 0);
+    const pageTotal = pageItems.reduce((s, i) => s + i.amount, 0);
+    const pageQty = pageItems.reduce((s, i) => s + Number(i.qty), 0);
+
+    tableRows.push([
+      {
+        content: isLastPage ? 'Grand Total' : `Sub-Total Page ${pageIndex + 1}`,
+        colSpan: 3,
+        styles: { halign: 'right', fontStyle: 'bold' }
+      },
+      { content: pageQty.toString(), styles: { fontStyle: 'bold', halign: 'center' } },
+      { content: '' },
+      { content: formatINR(isLastPage ? data.taxable_amount : pageSubtotal), styles: { fontStyle: 'bold', halign: 'right' } },
+      { content: '' },
+      { content: formatINR(isLastPage ? data.cgst + data.sgst : pageGSTAmt), styles: { fontStyle: 'bold', halign: 'right' } },
+      { content: formatINR(isLastPage ? data.grand_total : pageTotal), styles: { fontStyle: 'bold', halign: 'right' } },
+    ] as any[]);
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: leftMargin, right: rightMargin },
+      tableWidth: availableWidth,
+      theme: 'grid',
+      head: [[
+        { content: 'Sr', styles: { halign: 'center' } },
+        { content: 'Goods & Service Description', styles: { halign: 'center' } },
+        { content: 'HSN', styles: { halign: 'center' } },
+        { content: 'Qty', styles: { halign: 'center' } },
+        { content: 'Rate', styles: { halign: 'center' } },
+        { content: 'Taxable', styles: { halign: 'center' } },
+        { content: 'GST%', styles: { halign: 'center' } },
+        { content: 'GST Amt', styles: { halign: 'center' } },
+        { content: 'Total', styles: { halign: 'center' } },
+      ]],
+      body: tableRows,
+      styles: {
+        fontSize: 5,
+        cellPadding: 0.6,
+        lineWidth: 0.1,
+        textColor: 0,
+        lineColor: 0,
+      },
+      headStyles: {
+        fillColor: [220, 230, 241],
+        textColor: 0,
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 5,
+      },
+      columnStyles: {
+        0: { cellWidth: 5, halign: 'center' },
+        1: { cellWidth: 38 },
+        2: { cellWidth: 14, halign: 'center' },
+        3: { cellWidth: 12, halign: 'center' },
+        4: { cellWidth: 15, halign: 'right' },
+        5: { cellWidth: 17, halign: 'right' },
+        6: { cellWidth: 9, halign: 'center' },
+        7: { cellWidth: 16, halign: 'right' },
+        8: { cellWidth: 12, halign: 'center' },
+      },
+    });
+
+    let fy = (doc as any).lastAutoTable.finalY;
+
+    // Footer only on last page
+    if (isLastPage) {
+      const roundOff = Math.round(data.grand_total + freight) - (data.grand_total + freight);
+      const roundedTotal = Math.round(data.grand_total + freight);
+
+      doc.setLineWidth(0.1);
+
+      // Bank details + Summary
+      doc.setFontSize(6.5);
+      doc.setFont("helvetica", "bold");
+      doc.text("Bank Details", leftMargin + 2, fy + 5);
+      doc.setFont("helvetica", "normal");
+      doc.text("Bank Name  : HDFC", leftMargin + 2, fy + 10);
+      doc.text("Branch     : MADURAI MAIN", leftMargin + 2, fy + 15);
+      doc.text("Account No : 50200074442432", leftMargin + 2, fy + 20);
+      doc.text("IFSC Code  : HDFC0000123", leftMargin + 2, fy + 25);
+
+      autoTable(doc, {
+        startY: fy,
+        margin: { left: colMid, right: rightMargin },
+        tableWidth: availableWidth / 2,
+        theme: 'grid',
+        head: [[
+          { content: 'SUMMARY', styles: { halign: 'left' } },
+          { content: 'AMOUNT', styles: { halign: 'right' } },
+        ]],
+        body: [
+          [{ content: `CGST ${data.is_igst ? '-' : '9%'}` }, { content: data.is_igst ? '-' : formatINR(data.cgst), styles: { halign: 'right' } }],
+          [{ content: `SGST ${data.is_igst ? '-' : '9%'}` }, { content: data.is_igst ? '-' : formatINR(data.sgst), styles: { halign: 'right' } }],
+          [{ content: `IGST ${data.is_igst ? '18%' : '-'}` }, { content: data.is_igst ? formatINR(data.cgst + data.sgst) : '-', styles: { halign: 'right' } }],
+          [{ content: 'Freight/Packing' }, { content: freight > 0 ? formatINR(freight) : '-', styles: { halign: 'right' } }],
+          [{ content: 'Round Off' }, { content: roundOff !== 0 ? formatINR(Math.abs(roundOff)) : '0.00', styles: { halign: 'right' } }],
+        ],
+        styles: { fontSize: 6, cellPadding: 0.8, lineWidth: 0.1, textColor: 0, lineColor: 0 },
+        headStyles: { fillColor: [220, 230, 241], textColor: 0, fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { cellWidth: 22, halign: 'right' },
+        },
+      });
+
+      const summaryFinalY = (doc as any).lastAutoTable.finalY;
+      doc.rect(leftMargin, fy, availableWidth / 2, summaryFinalY - fy);
+      fy = summaryFinalY;
+
+      // Total in words
+      doc.rect(leftMargin, fy, availableWidth, 14);
+      doc.line(colMid, fy, colMid, fy + 14);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.text("Total Amount in Words", leftMargin + 2, fy + 5);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6);
+      const wordLines = doc.splitTextToSize(numberToWords(data.grand_total), colMid - leftMargin - 4);
+      doc.text(wordLines, leftMargin + 2, fy + 10);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.text("Total Amount :", colMid + 2, fy + 5);
+      doc.text(formatINR(roundedTotal), valueX, fy + 5, { align: "right" });
+      fy += 14;
+
+      // Declaration
+      doc.rect(leftMargin, fy, availableWidth, 28);
+      doc.line(colMid, fy, colMid, fy + 28);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.text("Declaration", leftMargin + 2, fy + 5);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(5.5);
+      doc.text("1. Sold goods not returnable or exchanged.", leftMargin + 2, fy + 10);
+      doc.text("2. Payment of credit bills settled within 10 days, else 24% p.a. interest.", leftMargin + 2, fy + 14);
+      doc.text("3. Our responsibility ceases once goods handed over to carriers.", leftMargin + 2, fy + 18);
+      doc.text("4. Subject to Madurai Jurisdiction only.", leftMargin + 2, fy + 22);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.text("For, RAJ SHREE GIFTS", valueX, fy + 5, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      doc.text("Authorised Signatory", valueX, fy + 25, { align: "right" });
+      fy += 28;
+
+      doc.setFontSize(7);
+      doc.text("Thank You For Business With Us!", pageWidth / 2, fy + 5, { align: "center" });
+    }
+  });
 
   return doc;
 };
