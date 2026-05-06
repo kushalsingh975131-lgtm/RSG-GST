@@ -335,8 +335,7 @@ const ViewBillsTab = () => {
                 <option value="CREDIT">Credit</option>
               </select>
             </div>
-          </div>
-        </div>
+
         <div className="flex items-center gap-2">
             <Switch checked={isIGST} onCheckedChange={setIsIGST} />
             <Label className="text-sm">IGST</Label>
@@ -352,6 +351,8 @@ const ViewBillsTab = () => {
               className="mt-1 bg-background/50"
             />
         </div>
+            </div>
+        </div>  
 
         <div className="glass-card p-3 pb-60">
           <BillTable
