@@ -42,24 +42,86 @@ const Index = () => {
   const [keypadEnabled, setKeypadEnabled] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [gstinLoading, setGstinLoading] = useState(false); // ✅ add
+  const [gstinError, setGstinError] = useState('');
 
-  const fetchGSTINDetails = async (gstin: string) => {
-  if (gstin.length !== 15) return;
-  try {
-    const res = await fetch(`https://api.gstincheck.co.in/check/${import.meta.env.VITE_GSTIN_API_KEY}/${gstin}`);
-    const data = await res.json();
-    if (data.flag) {
-      setCustomerName(data.data.tradeNam || data.data.lgnm || '');
-      setCustomerAddress(data.data.pradr?.adr || '');
-      setCustomerState(data.data.pradr?.addr?.stcd || '');
-      setPlaceOfSupply(data.data.pradr?.addr?.stcd || '');
-    }
-  } catch (e) {
-    console.log('GSTIN fetch failed', e);
-    // silently fail
-  }
+  // gst search
+const validateGSTIN = (gstin: string) => {
+  const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  return regex.test(gstin);
 };
 
+const fetchGSTINDetails = async (gstin: string) => {
+  if (gstin.length !== 15) {
+    setGstinError('');
+    return;
+  }
+  if (!validateGSTIN(gstin)) {
+    setGstinError('Invalid GST Number');
+    return;
+  }
+  setGstinLoading(true);
+  setGstinError('');
+  try {
+    // Check DB cache first
+    const { data: cached } = await (supabase as any)
+      .from('gstin_cache')
+      .select('*')
+      .eq('gstin', gstin)
+      .maybeSingle();
+
+    if (cached) {
+      setCustomerName(cached.trade_name || cached.legal_name || '');
+      setCustomerAddress(cached.address || '');
+      setCustomerState(cached.state || '');
+      setPlaceOfSupply(cached.state || '');
+      setGstinLoading(false);
+      return;
+    }
+
+    // Not in cache — call API
+    const res = await fetch(
+      `https://api.gstverify.co.in/api/v1/verify/${gstin}`,
+      {
+        method: 'GET',
+        headers: { 'X-API-Key': import.meta.env.VITE_GSTIN_API_KEY },
+      }
+    );
+
+    if (!res.ok) {
+      setGstinError('Unable to fetch details');
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!data || data.status === 'error') {
+      setGstinError('GST not found');
+      return;
+    }
+
+    // Save to cache
+    await (supabase as any).from('gstin_cache').insert({
+      gstin,
+      legal_name: data.legal_name || '',
+      trade_name: data.trade_name || '',
+      address: data.address || '',
+      state: data.state || '',
+      status: data.status || '',
+    });
+
+    // Autofill
+    setCustomerName(data.trade_name || data.legal_name || '');
+    setCustomerAddress(data.address || '');
+    setCustomerState(data.state || '');
+    setPlaceOfSupply(data.state || '');
+
+  } catch (e) {
+    setGstinError('Unable to fetch details');
+  } finally {
+    setGstinLoading(false);
+  }
+};
   useEffect(() => {
     const check = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
@@ -294,25 +356,46 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 flex-wrap">
-            <div className="flex-1 min-w-[160px]">
-              <Label className="text-xs text-muted-foreground">Customer Name</Label>
-              <Input value={customerName} onChange={e => setCustomerName(e.target.value)}
-                placeholder="Party name" className="mt-1 bg-background/50" />
-            </div>
+          <div className="flex-1 min-w-[160px]">
+            <Label className="text-xs text-muted-foreground">
+              Customer Name {customerName && gstinLoading === false && customerGstin.length === 15 && !gstinError ? '(autofilled)' : ''}
+            </Label>
+            <Input value={customerName} onChange={e => setCustomerName(e.target.value)}
+              placeholder="Party name" className="mt-1 bg-background/50" />
+          </div>
             <div className="flex-1 min-w-[160px]">
               <Label className="text-xs text-muted-foreground">Customer GSTIN</Label>
-               <Input
-                        value={customerGstin}
-                        onChange={e => {
-                        const val = e.target.value.toUpperCase();
-                        setCustomerGstin(val);
-                        fetchGSTINDetails(val);
-                       }}
-                        placeholder="GSTIN"
-                        className="mt-1 bg-background/50"
-                        maxLength={15}
-                 />
+              <div className="relative">
+                <Input
+                  value={customerGstin}
+                  onChange={e => {
+                    const val = e.target.value.toUpperCase();
+                    setCustomerGstin(val);
+                    setGstinError('');
+                    fetchGSTINDetails(val);
+                  }}
+                  placeholder="GSTIN"
+                  className={`mt-1 bg-background/50 ${
+                    customerGstin.length === 15 && !gstinError
+                      ? 'border-green-500'
+                      : gstinError
+                      ? 'border-red-400'
+                      : ''
+                  }`}
+                  maxLength={15}
+                />
+                {gstinLoading && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 mt-0.5">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              {gstinError && (
+                <p className="text-xs text-red-400 mt-1">{gstinError}</p>
+              )}
+              {customerGstin.length === 15 && !gstinError && !gstinLoading && (
+                <p className="text-xs text-green-500 mt-1">Valid GSTIN ✓</p>
+              )}
             </div>
             <div className="flex-1 min-w-[160px]">
               <Label className="text-xs text-muted-foreground">Address</Label>
