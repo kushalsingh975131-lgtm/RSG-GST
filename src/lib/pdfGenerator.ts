@@ -169,9 +169,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     { content: '' },
     { content: formatINR(data.taxable_amount), styles: { fontStyle: 'bold', halign: 'right' } },
     { content: '' },
-    { content: formatINR(data.cgst), styles: { fontStyle: 'bold', halign: 'right' } },
-    { content: '' },
-    { content: formatINR(data.sgst), styles: { fontStyle: 'bold', halign: 'right' } },
+    { content: formatINR(data.cgst + data.sgst), styles: { fontStyle: 'bold', halign: 'right' } },
     { content: formatINR(data.grand_total), styles: { fontStyle: 'bold', halign: 'right' } },
   ] as any[]);
 
