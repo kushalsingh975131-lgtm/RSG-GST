@@ -26,6 +26,8 @@ interface GSTBillData {
   cgst: number;
   sgst: number;
   grand_total: number;
+  is_igst: boolean;        // new
+  freight_charge: number;  // new
 }
 
 const formatINR = (num: number) =>
@@ -151,10 +153,8 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     Number(item.qty),
     formatINR(Number(item.rate)),
     formatINR(item.taxable_value),
-    '9%',
-    formatINR(item.cgst_amount),
-    '9%',
-    formatINR(item.sgst_amount),
+    '18%',
+    formatINR(item.cgst_amount + item.sgst_amount),
     formatINR(item.amount),
   ]);
 
@@ -162,7 +162,6 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     tableRows.push(['', '', '', '', '', '', '', '', '', '', '']);
   }
 
-  const roundOff = Math.round(data.grand_total) - data.grand_total;
 
   tableRows.push([
     { content: 'Sub-Total', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
@@ -188,10 +187,8 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
       { content: 'Qty', styles: { halign: 'center' } },
       { content: 'Rate', styles: { halign: 'center' } },
       { content: 'Taxable', styles: { halign: 'center' } },
-      { content: 'CGST%', styles: { halign: 'center' } },
-      { content: 'CGST Amt', styles: { halign: 'center' } },
-      { content: 'SGST%', styles: { halign: 'center' } },
-      { content: 'SGST Amt', styles: { halign: 'center' } },
+      { content: 'GST%', styles: { halign: 'center' } },
+      { content: 'GST Amt', styles: { halign: 'center' } },
       { content: 'Total', styles: { halign: 'center' } },
     ]],
     body: tableRows,
@@ -225,6 +222,9 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   });
 
   let fy = (doc as any).lastAutoTable.finalY;
+  const freight = data.freight_charge || 0;
+  const roundOff = Math.round(data.grand_total + freight) - (data.grand_total + freight);
+  const roundedTotal = Math.round(data.grand_total + freight);
 
   // ── FOOTER ──
   // Bank details (left) + Summary (right)
@@ -253,15 +253,15 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
 
   doc.setFont("helvetica", "normal");
   doc.text("CGST Amt :", summaryX, fy + 11);
-  doc.text(formatINR(data.cgst), valueX, fy + 11, { align: "right" });
+  doc.text(data.is_igst ? "-" : formatINR(data.cgst), valueX, fy + 11, { align: "right" });
   doc.text("SGST Amt :", summaryX, fy + 17);
-  doc.text(formatINR(data.sgst), valueX, fy + 17, { align: "right" });
+  doc.text(data.is_igst ? "-" : formatINR(data.sgst), valueX, fy + 17, { align: "right" });
   doc.text("IGST Amt :", summaryX, fy + 23);
-  doc.text("-", valueX, fy + 23, { align: "right" });
+  doc.text(data.is_igst ? formatINR(data.cgst + data.sgst) : "-", valueX, fy + 23, { align: "right" });
   doc.text("Freight/Packing :", summaryX, fy + 29);
-  doc.text("-", valueX, fy + 29, { align: "right" });
+  doc.text(freight > 0 ? formatINR(freight) : "-", valueX, fy + 29, { align: "right" });
   doc.text("Round off :", summaryX, fy + 35);
-  doc.text(formatINR(Math.abs(roundOff)), valueX, fy + 35, { align: "right" });
+  doc.text(formatINR(roundedTotal), valueX, fy + 35, { align: "right" });
 
   fy += 38;
 
@@ -270,7 +270,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
   doc.line(colMid, fy, colMid, fy + 14);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
-  doc.text("Invoice Total in Word", leftMargin + 2, fy + 5);
+  doc.text("Total Amount in Words", leftMargin + 2, fy + 5);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6);
   const wordLines = doc.splitTextToSize(numberToWords(data.grand_total), colMid - leftMargin - 4);

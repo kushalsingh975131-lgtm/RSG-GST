@@ -40,6 +40,8 @@ const Index = () => {
   const [keypadEnabled, setKeypadEnabled] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isIGST, setIsIGST] = useState(false);
+  const [freightCharge, setFreightCharge] = useState('');
 
   const fetchGSTINDetails = async (gstin: string) => {
   if (gstin.length !== 15) return;
@@ -197,6 +199,8 @@ const Index = () => {
       setPlaceOfSupply('');
       setPaymentMode('CASH');
       setActiveField({ row: 0, field: 'particulars' });
+      setFreightCharge('');
+      setIsIGST(false);
     } catch (err: any) {
       toast({ title: 'Error saving bill', description: err.message, variant: 'destructive' });
     } finally {
@@ -213,11 +217,14 @@ const Index = () => {
     customer_state: customerState,
     place_of_supply: placeOfSupply,
     payment_mode: paymentMode,
+    is_igst: isIGST,
+    freight_charge: parseFloat(freightCharge) || 0,
     items: items.filter(i => i.amount > 0),
     taxable_amount,
     cgst,
     sgst,
     grand_total,
+
   });
 
   const handlePrint = () => {
@@ -330,6 +337,21 @@ const Index = () => {
                 <option value="UPI">UPI</option>
                 <option value="CREDIT">Credit</option>
               </select>
+            </div>
+            <div className="flex items-center gap-2">
+            <Switch checked={isIGST} onCheckedChange={setIsIGST} />
+              <Label className="text-sm">IGST</Label>
+            </div>
+
+            <div className="w-28">
+              <Label className="text-xs text-muted-foreground">Freight/Packing ₹</Label>
+                  <Input
+                    value={freightCharge}
+                    onChange={e => setFreightCharge(e.target.value)}
+                    placeholder="0"
+                    inputMode="numeric"
+                    className="mt-1 bg-background/50"
+                  />
             </div>
             <div className="w-28">
               <Label className="text-xs text-muted-foreground">Date</Label>
