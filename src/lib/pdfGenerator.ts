@@ -209,15 +209,13 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     columnStyles: {
       0:  { cellWidth: 5,  halign: 'center' },
       1:  { cellWidth: 32 },
-      2:  { cellWidth: 10, halign: 'center' },
-      3:  { cellWidth: 8,  halign: 'center' },
-      4:  { cellWidth: 12, halign: 'right' },
-      5:  { cellWidth: 14, halign: 'right' },
+      2:  { cellWidth: 12, halign: 'center' },
+      3:  { cellWidth: 10,  halign: 'center' },
+      4:  { cellWidth: 14, halign: 'right' },
+      5:  { cellWidth: 18, halign: 'right' },
       6:  { cellWidth: 8,  halign: 'center' },
-      7:  { cellWidth: 12, halign: 'right' },
-      8:  { cellWidth: 8,  halign: 'center' },
-      9:  { cellWidth: 12, halign: 'right' },
-      10: { cellWidth: 17, halign: 'right' },
+      7:  { cellWidth: 16, halign: 'right' },
+      8:  { cellWidth: 12,  halign: 'center' },
     },
   });
 
