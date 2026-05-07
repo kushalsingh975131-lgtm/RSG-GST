@@ -81,15 +81,12 @@ const fetchGSTINDetails = async (gstin: string) => {
 
     // Not in cache — call API
     const res = await fetch(
-      `https://api.gstverify.co.in/api/v1/verify/${gstin}`,
+      `https://gstverify.co.in/api/v1/verify/${gstin}`,
       {
         method: 'GET',
         headers: { 'X-API-Key': import.meta.env.VITE_GSTIN_API_KEY },
       }
     );
-    console.log('Response status:', res.status);
-    const data1 = await res.json();
-    console.log('GSTIN API response:', data1);
     if (!res.ok) {
       setGstinError('Unable to fetch details');
       return;
