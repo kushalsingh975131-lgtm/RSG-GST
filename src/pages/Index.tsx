@@ -87,7 +87,9 @@ const fetchGSTINDetails = async (gstin: string) => {
         headers: { 'X-API-Key': import.meta.env.VITE_GSTIN_API_KEY },
       }
     );
-
+    console.log('Response status:', res.status);
+    const data1 = await res.json();
+    console.log('GSTIN API response:', data1);
     if (!res.ok) {
       setGstinError('Unable to fetch details');
       return;
