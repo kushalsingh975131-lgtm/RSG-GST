@@ -95,12 +95,13 @@ const fetchGSTINDetails = async (gstin: string) => {
       return;
     }
 
-    const data = await res.json();
+    const json = await res.json();
 
-    if (!data || data.status === 'error') {
+    if (!json.success|| !json.data) {
       setGstinError('GST not found');
       return;
     }
+    const data = json.data;
 
     // Save to cache
     await (supabase as any).from('gstin_cache').insert({
