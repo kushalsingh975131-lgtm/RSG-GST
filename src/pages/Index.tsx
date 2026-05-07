@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const createEmptyItem = (): GSTBillItem => ({
   id: crypto.randomUUID(),
-  particulars: '',
+  particulars: 'GIFT ARTICLES',
   hsn: '',
   rate: '',
   qty: '',
