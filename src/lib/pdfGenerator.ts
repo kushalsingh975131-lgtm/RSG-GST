@@ -224,13 +224,13 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
 
   // ✅ Check space — add empty rows or new page
   const pageHeight = doc.internal.pageSize.getHeight();
-  const FOOTER_HEIGHT = 88;
+  const FOOTER_HEIGHT = 82;
   const remainingSpace = pageHeight - fy;
 
   if (remainingSpace < FOOTER_HEIGHT) {
   // Fill remaining space on current page
   const rowHeight = 3.7;
-  const emptyRowsCurrentPage = Math.floor(remainingSpace / rowHeight);
+  const emptyRowsCurrentPage = (Math.floor(remainingSpace / rowHeight))-1;
   if (emptyRowsCurrentPage > 0) {
       autoTable(doc, {
         startY: fy,
