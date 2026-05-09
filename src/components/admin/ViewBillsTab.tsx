@@ -365,8 +365,20 @@ const ViewBillsTab = () => {
           <div className="flex justify-end mt-3 space-y-1 text-right">
             <div>
               <p className="text-sm text-muted-foreground">Taxable: ₹{items.reduce((s, i) => s + i.taxable_value, 0).toFixed(2)}</p>
-              <p className="text-sm text-muted-foreground">CGST: ₹{items.reduce((s, i) => s + i.cgst_amount, 0).toFixed(2)}</p>
-              <p className="text-sm text-muted-foreground">SGST: ₹{items.reduce((s, i) => s + i.sgst_amount, 0).toFixed(2)}</p>
+              {isIGST ? (
+              <p className="text-sm text-muted-foreground">
+                IGST: ₹{items.reduce((s, i) => s + i.cgst_amount + i.sgst_amount, 0).toFixed(2)}
+              </p>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  CGST: ₹{items.reduce((s, i) => s + i.cgst_amount, 0).toFixed(2)}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  SGST: ₹{items.reduce((s, i) => s + i.sgst_amount, 0).toFixed(2)}
+                </p>
+              </>
+            )}
               <p className="font-bold text-lg">Total: ₹{items.reduce((s, i) => s + i.amount, 0).toFixed(2)}</p>
             </div>
           </div>
@@ -420,7 +432,7 @@ const ViewBillsTab = () => {
                     <p className="text-xs text-muted-foreground">{bill.invoice_no} • {new Date(bill.created_at).toLocaleDateString('en-IN')}</p>
                   </div>
                 </div>
-                <span className="font-serif font-bold text-primary">₹{bill.grand_total}</span>
+                <span className="font-serif font-bold text-primary">₹{Number(bill.grand_total).toFixed(2)}</span>
               </div>
             </motion.button>
           ))}

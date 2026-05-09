@@ -473,14 +473,23 @@ const fetchGSTINDetails = async (gstin: string) => {
             <span className="text-sm text-muted-foreground">Taxable Amount</span>
             <span className="font-medium">₹{taxable_amount.toFixed(2)}</span>
           </div>
+         {isIGST ? (
           <div className="flex justify-between items-center mt-1">
-            <span className="text-sm text-muted-foreground">CGST (9%)</span>
-            <span className="font-medium">₹{cgst.toFixed(2)}</span>
+            <span className="text-sm text-muted-foreground">IGST (18%)</span>
+            <span className="font-medium">₹{(cgst + sgst).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center mt-1">
-            <span className="text-sm text-muted-foreground">SGST (9%)</span>
-            <span className="font-medium">₹{sgst.toFixed(2)}</span>
-          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-sm text-muted-foreground">CGST (9%)</span>
+              <span className="font-medium">₹{cgst.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-sm text-muted-foreground">SGST (9%)</span>
+              <span className="font-medium">₹{sgst.toFixed(2)}</span>
+            </div>
+          </>
+        )}
           <div className="flex justify-between items-center mt-2 pt-2 border-t border-primary/20">
             <span className="font-serif text-lg font-bold">Grand Total</span>
             <span className="font-serif text-xl font-bold gold-text">₹{grand_total.toFixed(2)}</span>
