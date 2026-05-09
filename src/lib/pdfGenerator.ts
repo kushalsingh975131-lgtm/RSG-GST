@@ -224,7 +224,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
 
   // ✅ Check space — add empty rows or new page
   const pageHeight = doc.internal.pageSize.getHeight();
-  const FOOTER_HEIGHT = 82;
+  const FOOTER_HEIGHT = 80;
   const remainingSpace = pageHeight - fy;
 
   if (remainingSpace < FOOTER_HEIGHT) {
@@ -252,6 +252,12 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
           // Draw right border only for last column
           if (data.column.index === 8) {
             doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+        
+          // ✅ closing horizontal line at bottom of current page
+        const bottomY = (doc as any).lastAutoTable.finalY;
+        doc.setLineWidth(0.1);
+        doc.setDrawColor(0);
+        doc.line(leftMargin, bottomY, leftMargin + availableWidth, bottomY);    
           }
         },
       });
@@ -260,6 +266,10 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
     // New page — fill with empty rows till footer reaches bottom
     doc.addPage();
     fy = 5;
+    // ✅ top horizontal line on new page
+    doc.setLineWidth(0.1);
+    doc.setDrawColor(0);
+    doc.line(leftMargin, fy, leftMargin + availableWidth, fy);
     const newPageHeight = doc.internal.pageSize.getHeight();
     const emptyRowsNewPage = Math.floor((newPageHeight - fy - FOOTER_HEIGHT) / rowHeight);
     if (emptyRowsNewPage > 0) {
