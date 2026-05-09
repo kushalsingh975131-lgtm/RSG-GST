@@ -236,13 +236,23 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         startY: fy,
         margin: { left: leftMargin, right: rightMargin },
         tableWidth: availableWidth,
-        theme: 'grid',
+        theme: 'plain', // ✅ no borders at all first
         body: Array(emptyRowsCurrentPage).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
           6: { cellWidth: 9 }, 7: { cellWidth: 16 }, 8: { cellWidth: 12 },
+        },
+        didDrawCell: (data) => {
+          // Draw only left vertical line for each cell
+          doc.setLineWidth(0.1);
+          doc.setDrawColor(0);
+          doc.line(data.cell.x, data.cell.y, data.cell.x, data.cell.y + data.cell.height);
+          // Draw right border only for last column
+          if (data.column.index === 8) {
+            doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+          }
         },
       });
     }
@@ -257,13 +267,23 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         startY: fy,
         margin: { left: leftMargin, right: rightMargin },
         tableWidth: availableWidth,
-        theme: 'grid',
+        theme: 'plain', // ✅ no borders at all first
         body: Array(emptyRowsNewPage).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
           6: { cellWidth: 9 }, 7: { cellWidth: 16 }, 8: { cellWidth: 12 },
+        },
+        didDrawCell: (data) => {
+          // Draw only left vertical line for each cell
+          doc.setLineWidth(0.1);
+          doc.setDrawColor(0);
+          doc.line(data.cell.x, data.cell.y, data.cell.x, data.cell.y + data.cell.height);
+          // Draw right border only for last column
+          if (data.column.index === 8) {
+            doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+          }
         },
       });
       fy = (doc as any).lastAutoTable.finalY;
@@ -276,13 +296,23 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         startY: fy,
         margin: { left: leftMargin, right: rightMargin },
         tableWidth: availableWidth,
-        theme: 'grid',
+        theme: 'plain', // ✅ no borders at all first
         body: Array(emptyRowsNeeded).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
           6: { cellWidth: 9 }, 7: { cellWidth: 16 }, 8: { cellWidth: 12 },
+        },
+        didDrawCell: (data) => {
+          // Draw only left vertical line for each cell
+          doc.setLineWidth(0.1);
+          doc.setDrawColor(0);
+          doc.line(data.cell.x, data.cell.y, data.cell.x, data.cell.y + data.cell.height);
+          // Draw right border only for last column
+          if (data.column.index === 8) {
+            doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+          }
         },
       });
       fy = (doc as any).lastAutoTable.finalY;
