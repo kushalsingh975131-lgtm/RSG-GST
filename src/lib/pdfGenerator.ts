@@ -238,7 +238,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         tableWidth: availableWidth,
         theme: 'grid',
         body: Array(emptyRowsCurrentPage).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0.1, textColor: 0, lineColor: 0 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
@@ -259,7 +259,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         tableWidth: availableWidth,
         theme: 'grid',
         body: Array(emptyRowsNewPage).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0.1, textColor: 0, lineColor: 0 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
@@ -278,7 +278,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
         tableWidth: availableWidth,
         theme: 'grid',
         body: Array(emptyRowsNeeded).fill(['', '', '', '', '', '', '', '', '']),
-        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0.1, textColor: 0, lineColor: 0 },
+        styles: { fontSize: 5, cellPadding: 0.6, lineWidth: 0, textColor: 0, lineColor: 255 },
         columnStyles: {
           0: { cellWidth: 5 }, 1: { cellWidth: 38 }, 2: { cellWidth: 14 },
           3: { cellWidth: 12 }, 4: { cellWidth: 15 }, 5: { cellWidth: 17 },
