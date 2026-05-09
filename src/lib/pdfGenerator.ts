@@ -254,7 +254,7 @@ const generateSingleCopy = (doc: jsPDF, data: GSTBillData, startY: number, copyL
             doc.line(data.cell.x + data.cell.width, data.cell.y, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
         
           // ✅ closing horizontal line at bottom of current page
-        const bottomY = (doc as any).lastAutoTable.finalY - 5;
+        const bottomY = (doc as any).lastAutoTable.finalY ;
         doc.setLineWidth(0.1);
         doc.setDrawColor(0);
         doc.line(leftMargin, bottomY, leftMargin + availableWidth, bottomY);    
